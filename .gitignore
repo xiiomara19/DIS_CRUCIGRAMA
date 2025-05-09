@@ -1,1 +1,14 @@
 /.metadata/
+*.java
+*.jar
+*.xml
+/caceresGarcia/xtend-gen
+/caceresGarcia/src/caceresGarcia/generator
+/caceresGarcia/src-gen
+/caceresGarcia/model
+/caceresGarcia/META-INF
+/caceresGarcia.ide/src-gen
+/caceresGarcia.ide/src-gen
+/caceresGarcia.ide/META-INF
+/caceresGarcia.ide
+/caceresGarcia.ui
