@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Automatic-Module-Name: caceresGarcia.ide
+Bundle-ManifestVersion: 2
+Bundle-Name: caceresGarcia.ide
+Bundle-Vendor: My Company
+Bundle-Version: 1.0.0.qualifier
+Bundle-SymbolicName: caceresGarcia.ide; singleton:=true
+Bundle-ActivationPolicy: lazy
+Require-Bundle: caceresGarcia,
+ org.eclipse.xtext.ide,
+ org.eclipse.xtext.xbase.ide
+Bundle-RequiredExecutionEnvironment: JavaSE-11
