@@ -3,21 +3,20 @@ grammar caceresGarcia.MyDsl with org.eclipse.xtext.common.Terminals
 generate myDsl "http://www.MyDsl.caceresGarcia"
 
 Crossword:
-	'Crossword' 'id' ident=INT 'entitled' company=STRING 'has' num=INT 'horizontals' 'and' num=INT 'verticals'
+	'Crossword' 'id' ident=INT 'entitled' company=STRING 'has' numAcross=INT 'horizontals' 'and' numDown=INT 'verticals'
 	('with' 'language' lang=Language)?'.'
 	across+=Across*
 	down+=Down*
-	
 ;
 	
 Across:
 	'across' 
-	elements+=Row* 
+	rows+=Row* 
 ;
 	
 Down:
 	'down'
-	elements+=Row*
+	columns+=Row*
 ;
 
 Row:
