@@ -2,8 +2,40 @@ grammar caceresGarcia.MyDsl with org.eclipse.xtext.common.Terminals
 
 generate myDsl "http://www.MyDsl.caceresGarcia"
 
-Model:
-	greetings+=Greeting*;
+Crossword:
+	'Crossword' 'id' ident=INT 'entitled' company=STRING 'has' num=INT 'horizontals' 'and' num=INT 'verticals'
+	('with' 'language' lang=Language)?'.'
+	across+=Across*
+	down+=Down*
 	
-Greeting:
-	'Hello' name=ID '!';
+;
+	
+Across:
+	'across' 
+	elements+=Row* 
+;
+	
+Down:
+	'down'
+	elements+=Row*
+;
+
+Row:
+	'at' num=INT element+=Element (';' element+=Element)* '.'
+;
+
+Element:
+	Word | Black
+;
+
+Word:
+	word=ID 'definition' def=STRING
+;
+
+Black:
+	 'black' (numtimes=INT 'times')?
+;
+
+enum Language:
+	English | Spanish | Basque | Dutch 
+;
