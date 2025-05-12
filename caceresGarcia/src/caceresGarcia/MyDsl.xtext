@@ -35,7 +35,8 @@ Down:
 ;
 
 Row:
-	'at' num=INT element+=Element (';' element+=Element)* '.'
+	//'at' num=INT words+=Word ((';' black+=Black)+ (';' elements+=Element)?)* '.'
+	'at' num=INT (blacks+=Black ';')* elements+=Element (';' elements+=Element)* '.'
 ;
 
 Element:
@@ -43,7 +44,7 @@ Element:
 ;
 
 Word:
-	word=ID 'definition' def=STRING
+	word=ID '('lang=Language?')' 'definition' def=STRING
 ;
 
 Black:
