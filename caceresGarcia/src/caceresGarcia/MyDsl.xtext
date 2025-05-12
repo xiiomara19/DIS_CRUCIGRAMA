@@ -3,10 +3,25 @@ grammar caceresGarcia.MyDsl with org.eclipse.xtext.common.Terminals
 generate myDsl "http://www.MyDsl.caceresGarcia"
 
 Crossword:
-	'Crossword' 'id' ident=INT 'entitled' company=STRING 'has' numAcross=INT 'horizontals' 'and' numDown=INT 'verticals'
-	('with' 'language' lang=Language)?'.'
-	across+=Across*
-	down+=Down*
+	'Crossword' header=Header  
+	('with' 'language' lang=Language '(multi)'?)?  '.'
+	(across=Across down=Down | down=Down across=Across) 
+;
+
+Header:
+	id=IdPart & ent=EntitledPart & has=HasPart 
+;
+
+IdPart:
+	'id' ident=INT
+;
+
+EntitledPart:
+	'entitled' company=STRING
+;
+
+HasPart:
+	'has' numAcross=INT 'horizontals' 'and' numDown=INT 'verticals'
 ;
 	
 Across:
@@ -36,5 +51,5 @@ Black:
 ;
 
 enum Language:
-	English | Spanish | Basque | Dutch 
+	English | Spanish | Basque | German 
 ;
