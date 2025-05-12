@@ -5,7 +5,7 @@ generate myDsl "http://www.MyDsl.caceresGarcia"
 Crossword:
 	'Crossword' header=Header  
 	('with' 'language' lang=Language '(multi)'?)?  '.'
-	(across=Across down=Down | down=Down across=Across) 
+	(across=Across & down=Down)
 ;
 
 Header:
@@ -36,7 +36,7 @@ Down:
 
 Row:
 	//'at' num=INT words+=Word ((';' black+=Black)+ (';' elements+=Element)?)* '.'
-	'at' num=INT (blacks+=Black ';')* elements+=Element (';' elements+=Element)* '.'
+	'at' num=INT (blacks+=Black ';')* words+=Word ( (';' blacks+=Black)+ ';' elements+=Element)* (';' blacks+=Black)*'.'
 ;
 
 Element:
@@ -44,7 +44,7 @@ Element:
 ;
 
 Word:
-	word=ID '('lang=Language?')' 'definition' def=STRING
+	word=ID ('('lang=Language')')? 'definition' def=STRING
 ;
 
 Black:
