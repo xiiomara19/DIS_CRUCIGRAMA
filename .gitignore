@@ -3,7 +3,6 @@
 *.jar
 *.xml
 /caceresGarcia/xtend-gen
-/caceresGarcia/src/caceresGarcia/generator
 /caceresGarcia/src-gen
 /caceresGarcia/model
 /caceresGarcia/META-INF
