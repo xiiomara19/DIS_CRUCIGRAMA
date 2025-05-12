@@ -20,7 +20,7 @@ Para el orden, se usó el operador &
 - La palabra reservada ‘at’ acompaña al número de fila (o de columna, dependiendo del bloque en el que se encuentre). La definición de la fila (o columna) termina con ‘.’.
 ```
 java
-Elemento Row que empieza por at, y está compuesta de elementos tipo Word o Black.
+Elemento Row que empieza por at, está compuesta de elementos tipo Word o Black y termina con '.'.
 ```
 - Tras el número (de fila o columna) se enumeran los componentes de dicha fila o columna, separando con ‘;’.
 Son casillas negras o palabras.  Las palabras se deben separar con una casilla negra como mínimo (black).
@@ -38,7 +38,7 @@ La definición de elemento Black puede ser una palabra reservada o un número se
 su definición correspondiente (la que se utiliza como pista para resolver el crucigrama).
 ```
 java
-La definición de elemento Word es una palabra ID seguida de definition y la definición STR.
+La definición de elemento Word es una palabra ID seguida de definition y la definición STR. Además, se le puede especificar el idioma de la palabra.
 ```
 - Los crucigramas pueden definirse para diferentes idiomas (inglés, alemán, español, o euskara) indicándolo
 inicialmente. Los crucigramas serían monolingües, todas las palabras y definiciones en el idioma indicado.
