@@ -28,16 +28,15 @@ class MyDslGenerator extends AbstractGenerator {
 		«FOR row: c.across.rows»
 			«row.num». «IF !row.blacks.isEmpty»
 							«FOR black: row.blacks»
-								
 								# «black.numtimes»
 							«ENDFOR» 
 						«ENDIF»
-				«row.elements»
+				«row.words»
 		«ENDFOR»
 		
 		Down
 		«FOR column: c.down.columns»
-			«column.num». «column.elements»
+			«column.num». «column.words»
 		«ENDFOR»
 		
 	'''
