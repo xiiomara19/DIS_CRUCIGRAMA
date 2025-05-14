@@ -35,8 +35,8 @@ Down:
 ;
 
 Row:
-	//'at' num=INT words+=Word ((';' black+=Black)+ (';' elements+=Element)?)* '.'
-	'at' num=INT (blacks+=Black ';')* words+=Word ( (';' blacks+=Black)+ ';' elements+=Element)* (';' blacks+=Black)*'.'
+	//'at' num=INT (blacks+=Black ';')* elements+=Element ((';' blacks+=Black)+ ';' words+=Word)* (';' blacks+=Black)* (';' elements+=Element)? (';' blacks+=Black)*'.'
+	'at' num=INT head=Element '.'
 ;
 
 Element:
@@ -45,10 +45,20 @@ Element:
 
 Word:
 	word=ID ('('lang=Language')')? 'definition' def=STRING
+	(nextLink=SemicolonBlack)?
 ;
 
 Black:
 	 'black' (numtimes=INT 'times')?
+	 (nextLink=SemicolonElement)?
+;
+
+SemicolonBlack:
+    ';' element=Black
+;
+
+SemicolonElement:
+   ';' element=Element
 ;
 
 enum Language:
