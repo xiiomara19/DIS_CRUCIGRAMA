@@ -8,6 +8,8 @@ import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
 import caceresGarcia.myDsl.Crossword
+import caceresGarcia.myDsl.Black
+import caceresGarcia.myDsl.Word
 
 /**
  * Generates code from your model files on save.
@@ -26,17 +28,47 @@ class MyDslGenerator extends AbstractGenerator {
 		
 		Across
 		«FOR row: c.across.rows»
-			«row.num». «IF !row.blacks.isEmpty»
-							«FOR black: row.blacks»
-								# «black.numtimes»
-							«ENDFOR» 
+			«row.num». 
+				«IF row.head instanceof Black»
+					«(row.head as Black).numtimes»
+						«IF ((row.head as Black).numtimes == 0)»
+							#.
 						«ENDIF»
-				«row.words»
+						«IF (row.head as Black).numtimes > 0»
+							«FOR i : new IntegerRange((row.head as Black).numtimes-1, 0, -1)»
+								#
+							«ENDFOR»
+							.
+						«ENDIF»
+						
+				«ENDIF»
+				
+				«IF row.head instanceof Word»
+					«(row.head as Word).def» («(row.head as Word).word.length»)
+						.
+				«ENDIF»
 		«ENDFOR»
 		
 		Down
 		«FOR column: c.down.columns»
-			«column.num». «column.words»
+			«column.num». 
+				«IF column.head instanceof Black»
+					«(column.head as Black).numtimes»
+						«IF ((column.head as Black).numtimes == 0)»
+							#.
+						«ENDIF»
+						«IF (column.head as Black).numtimes > 1»
+							«FOR i : new IntegerRange((column.head as Black).numtimes, 1, -1)»
+								#
+							«ENDFOR»
+							.
+						«ENDIF»
+				«ENDIF»
+			
+				«IF column.head instanceof Word»
+					«(column.head as Word).def» («(column.head as Word).word.length»)
+						.
+				«ENDIF»
 		«ENDFOR»
 		
 	'''
