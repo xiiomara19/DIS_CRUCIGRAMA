@@ -10,6 +10,7 @@ import org.eclipse.xtext.generator.IGeneratorContext
 import caceresGarcia.myDsl.Crossword
 import caceresGarcia.myDsl.Black
 import caceresGarcia.myDsl.Word
+import caceresGarcia.myDsl.Element
 
 /**
  * Generates code from your model files on save.
@@ -20,57 +21,61 @@ class MyDslGenerator extends AbstractGenerator {
 
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		var crossword = resource.allContents.filter(Crossword).head
-		fsa.generateFile('crucigrama.txt', crossword.listDefinitions)
+		fsa.generateFile('listaDef.txt', crossword.listDefinitions)
+		fsa.generateFile('crucigramaVacio.txt', crossword.crosswordEmpty)
+		fsa.generateFile('crucigramaSol.txt', crossword.crosswordSol)
 	}
 	
 	def CharSequence listDefinitions(Crossword c) '''
 		Definitions for the «c.header.has.numAcross»x«c.header.has.numDown» crossword number «c.header.id.ident» entitled «c.header.ent.company».
-		
 		Across
 		«FOR row: c.across.rows»
-			«row.num». 
-				«IF row.head instanceof Black»
-					«(row.head as Black).numtimes»
-						«IF ((row.head as Black).numtimes == 0)»
-							#.
-						«ENDIF»
-						«IF (row.head as Black).numtimes > 0»
-							«FOR i : new IntegerRange((row.head as Black).numtimes-1, 0, -1)»
-								#
-							«ENDFOR»
-							.
-						«ENDIF»
-						
-				«ENDIF»
-				
-				«IF row.head instanceof Word»
-					«(row.head as Word).def» («(row.head as Word).word.length»)
-						.
-				«ENDIF»
+			«row.num». «IF row.head !== null»«IF row.head instanceof Black»«IF (row.head as Black).nextLink !== null»«(row.head as Black).nextLink.element.recursivaDef»«ENDIF»«ENDIF»«IF row.head instanceof Word»«(row.head as Word).def»(«(row.head as Word).word.length»).«IF (row.head as Word).nextLink !== null»«(row.head as Word).nextLink.element.recursivaDef»«ENDIF»«ENDIF»«ENDIF»
 		«ENDFOR»
-		
 		Down
 		«FOR column: c.down.columns»
-			«column.num». 
-				«IF column.head instanceof Black»
-					«(column.head as Black).numtimes»
-						«IF ((column.head as Black).numtimes == 0)»
-							#.
-						«ENDIF»
-						«IF (column.head as Black).numtimes > 1»
-							«FOR i : new IntegerRange((column.head as Black).numtimes, 1, -1)»
-								#
-							«ENDFOR»
-							.
-						«ENDIF»
-				«ENDIF»
-			
-				«IF column.head instanceof Word»
-					«(column.head as Word).def» («(column.head as Word).word.length»)
-						.
-				«ENDIF»
+			«column.num». «IF column.head !== null»«IF column.head instanceof Black»«IF (column.head as Black).nextLink !== null»«(column.head as Black).nextLink.element.recursivaDef»«ENDIF»«ENDIF»«IF column.head instanceof Word»«(column.head as Word).def»(«(column.head as Word).word.length»).«IF (column.head as Word).nextLink !== null»«(column.head as Word).nextLink.element.recursivaDef»«ENDIF»«ENDIF»«ENDIF»
+		«ENDFOR»
+	'''
+	
+	def CharSequence recursivaDef(Element e) '''
+		«IF e !== null»«IF e instanceof Black»«IF (e as Black).nextLink !== null»«(e as Black).nextLink.element.recursivaDef»«ENDIF»«ENDIF»«IF e instanceof Word»«(e as Word).def»(«(e as Word).word.length»).«IF (e as Word).nextLink !== null»«(e as Word).nextLink.element.recursivaDef»«ENDIF»«ENDIF»«ENDIF»
+	'''
+	
+	def CharSequence crosswordEmpty(Crossword c) '''
+		Definitions for the «c.header.has.numAcross»x«c.header.has.numDown» crossword number «c.header.id.ident» entitled «c.header.ent.company».
+		Across
+		«FOR row: c.across.rows»
+			«row.num». «IF row.head == null»#.«ENDIF»«IF row.head instanceof Black»«IF ((row.head as Black).numtimes == 0)»#.«ENDIF»«IF (row.head as Black).numtimes > 0»«FOR i : new IntegerRange((row.head as Black).numtimes-1, 0, -1)»#«ENDFOR».«ENDIF»«IF (row.head as Black).nextLink !== null»«(row.head as Black).nextLink.element.recursivaVacio»«ENDIF»«ENDIF»«IF row.head instanceof Word»«IF (row.head as Word).nextLink !== null»«(row.head as Word).nextLink.element.recursivaVacio»«ENDIF»«ENDIF»
+		«ENDFOR»
+		Down
+		«FOR column: c.down.columns»
+			«column.num». «IF column.head == null»#.«ENDIF»«IF column.head instanceof Black»«IF ((column.head as Black).numtimes == 0)»#.«ENDIF»«IF (column.head as Black).numtimes > 0»«FOR i : new IntegerRange((column.head as Black).numtimes-1, 0, -1)»#«ENDFOR».«ENDIF»«IF (column.head as Black).nextLink !== null»«(column.head as Black).nextLink.element.recursivaVacio»«ENDIF»«ENDIF»«IF column.head instanceof Word»«IF (column.head as Word).nextLink !== null»«(column.head as Word).nextLink.element.recursivaVacio»«ENDIF»«ENDIF»
 		«ENDFOR»
 		
+	'''
+	
+	def CharSequence recursivaVacio(Element e) '''
+		«IF e == null»#.«ENDIF»«IF e instanceof Black»«IF ((e as Black).numtimes == 0)»#.«ENDIF»«IF (e as Black).numtimes > 0»«FOR i : new IntegerRange((e as Black).numtimes-1, 0, -1)»#«ENDFOR».«ENDIF»«IF (e as Black).nextLink !== null»«(e as Black).nextLink.element.recursivaVacio»«ENDIF»«ENDIF»«IF e instanceof Word»«IF (e as Word).nextLink !== null»«(e as Word).nextLink.element.recursivaVacio»«ENDIF»«ENDIF»
+	'''
+	
+
+	
+	def CharSequence crosswordSol(Crossword c) '''
+		Definitions for the «c.header.has.numAcross»x«c.header.has.numDown» crossword number «c.header.id.ident» entitled «c.header.ent.company».
+		Across
+		«FOR row: c.across.rows»
+			«row.num». «IF row.head == null»#.«ENDIF»«IF row.head instanceof Black»«IF ((row.head as Black).numtimes == 0)»#.«ENDIF»«IF (row.head as Black).numtimes > 0»«FOR i : new IntegerRange((row.head as Black).numtimes-1, 0, -1)»#«ENDFOR».«ENDIF»«IF (row.head as Black).nextLink !== null»«(row.head as Black).nextLink.element.recursivaSol»«ENDIF»«ENDIF»«IF row.head instanceof Word»«(row.head as Word).def»(«(row.head as Word).word.length»).«IF (row.head as Word).nextLink !== null»«(row.head as Word).nextLink.element.recursivaSol»«ENDIF»«ENDIF»
+		«ENDFOR»
+		Down
+		«FOR column: c.down.columns»
+			«column.num». «IF column.head instanceof Black»«IF ((column.head as Black).numtimes == 0)»#.«ENDIF»«IF (column.head as Black).numtimes > 1»«FOR i : new IntegerRange((column.head as Black).numtimes, 1, -1)»#«ENDFOR».«ENDIF»«IF (column.head as Black).nextLink !== null»«(column.head as Black).nextLink.element.recursivaSol»«ENDIF»«ENDIF»«IF column.head instanceof Word»«(column.head as Word).def»(«(column.head as Word).word.length»).«IF (column.head as Word).nextLink !== null»«(column.head as Word).nextLink.element.recursivaSol»«ENDIF»«ENDIF»
+		«ENDFOR»
+		
+	'''
+	
+	def CharSequence recursivaSol(Element e) '''
+		«IF e == null»#.«ENDIF»«IF e instanceof Black»«IF ((e as Black).numtimes == 0)»#.«ENDIF»«IF (e as Black).numtimes > 1»«FOR i : new IntegerRange((e as Black).numtimes, 1, -1)»#«ENDFOR».«ENDIF»«IF (e as Black).nextLink !== null»«(e as Black).nextLink.element.recursivaSol»«ENDIF»	«ENDIF»«IF e instanceof Word»«(e as Word).def»(«(e as Word).word.length»).«IF (e as Word).nextLink !== null»«(e as Word).nextLink.element.recursivaSol»«ENDIF»«ENDIF»
 	'''
 	
 }
