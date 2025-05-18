@@ -1,0 +1,26 @@
+@Check
+public void checkRowMustContainWord(caceresGarcia.myDsl.Row row) {
+	if (!containsWord(row.getHead())) {
+		error("En la fila/columna debe haber minimo una palabra.", 
+			  caceresGarcia.myDsl.MyDslPackage.Literals.ROW__HEAD);
+	}
+}
+
+/**
+ * De manera recursiva revisa que haya minimo una Word
+ */
+private boolean containsWord(caceresGarcia.myDsl.Element element) {
+	if (element == null) {
+		return false;
+	}
+	if (element instanceof caceresGarcia.myDsl.Word) {
+		return true;
+	}
+	if (element instanceof caceresGarcia.myDsl.Black) {
+		var black = (caceresGarcia.myDsl.Black) element;
+		if (black.getNextLink() != null) {
+			return containsWord(black.getNextLink().getElement());
+		}
+	}
+	return false;
+}
