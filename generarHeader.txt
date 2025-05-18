@@ -1,0 +1,22 @@
+def CharSequence generarHeader(Crossword c) {
+		val headerNode = NodeModelUtils.getNode(c.header)
+		val partsNodes = headerNode.leafNodes
+					.filter[!it.isHidden] // Solo nodos visibles (no espacios/comentarios)
+					.map[text.trim]
+					.filter[!it.empty] // Por seguridad
+					.toList
+		'''
+		Definition
+		«FOR part: partsNodes»
+			«IF part == "id"»
+				number «c.header.id.ident»
+			«ENDIF»
+			«IF part == "entitled"»
+				entitled «c.header.ent.company»
+			«ENDIF»
+			«IF part == "has"»
+				for the «c.header.has.numAcross»x«c.header.has.numDown» crossword
+			«ENDIF»
+		«ENDFOR»
+		'''.toString.replaceAll("\\s+", " ").trim	
+	}

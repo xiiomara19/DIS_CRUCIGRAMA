@@ -1,5 +1,27 @@
-def CharSequence listDefinitions(Crossword c) '''
-	Definitions for the «c.header.has.numAcross»x«c.header.has.numDown» crossword number «c.header.id.ident» entitled «c.header.ent.company».
+def CharSequence listDefinitions(Crossword c) {
+	val body = new StringBuilder
+	val node = NodeModelUtils.getNode(c)
+
+	val leafs = node.leafNodes
+					.filter[!isHidden]
+					.map[text.trim]
+					.filter[!empty]
+					.toList
+
+	for (text : leafs) {
+		switch text {
+			case "across": body.append(parteAcrossDef(c))
+			case "down": body.append(parteDownDef(c))
+		}
+	}
+	'''
+		«c.generarHeader».
+		Definitions for the «c.header.has.numAcross»x«c.header.has.numDown» crossword number «c.header.id.ident» entitled «c.header.ent.company».
+		«body.toString»
+	'''
+}
+
+def CharSequence parteAcrossDef(Crossword c) '''
 	Across
 	«FOR row: c.across.rows»
 		«row.num». 
@@ -17,6 +39,9 @@ def CharSequence listDefinitions(Crossword c) '''
 				«ENDIF»
 			«ENDIF»
 	«ENDFOR»
+'''
+
+def CharSequence parteDownDef(Crossword c) '''
 	Down
 	«FOR column: c.down.columns»
 		«column.num». 

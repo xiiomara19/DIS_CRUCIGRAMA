@@ -1,3 +1,24 @@
+	def CharSequence listDefinitions(Crossword c) {
+		val body = new StringBuilder
+		val node = NodeModelUtils.getNode(c)
+	
+		val leafs = node.leafNodes
+						.filter[!isHidden]
+						.map[text.trim]
+						.filter[!empty]
+						.toList
+	
+		for (text : leafs) {
+			switch text {
+				case "across": body.append(c.parteAcrossDef)
+				case "down": body.append(c.parteDownDef)
+			}
+		}
+	'''
+		«c.generarHeader».
+		«body.toString»
+	'''}
+
 def CharSequence crosswordEmpty(Crossword c) '''
 	Definitions for the «c.header.has.numAcross»x«c.header.has.numDown» crossword number «c.header.id.ident» entitled «c.header.ent.company».
 	Across
@@ -54,6 +75,7 @@ def CharSequence crosswordEmpty(Crossword c) '''
 	«ENDFOR»
 	
 '''
+
 
 def CharSequence recursivaVacio(Element e) '''
 	«IF e == null»

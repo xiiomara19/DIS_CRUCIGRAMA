@@ -1,7 +1,8 @@
 /.metadata/
-*.java
 *.jar
 *.xml
+/caceresGarcia/src/caceresGarcia/*.java
+/caceresGarcia/src/caceresGarcia/scoping
 /caceresGarcia/xtend-gen
 /caceresGarcia/src-gen
 /caceresGarcia/model

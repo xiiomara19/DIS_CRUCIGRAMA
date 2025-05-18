@@ -11,6 +11,8 @@ import caceresGarcia.myDsl.Crossword
 import caceresGarcia.myDsl.Black
 import caceresGarcia.myDsl.Word
 import caceresGarcia.myDsl.Element
+import org.eclipse.xtext.nodemodel.util.NodeModelUtils
+
 
 /**
  * Generates code from your model files on save.
@@ -26,12 +28,62 @@ class MyDslGenerator extends AbstractGenerator {
 		fsa.generateFile('crucigramaSol.txt', crossword.crosswordSol)
 	}
 	
-	def CharSequence listDefinitions(Crossword c) '''
-		Definitions for the «c.header.has.numAcross»x«c.header.has.numDown» crossword number «c.header.id.ident» entitled «c.header.ent.company».
+	def CharSequence generarHeader(Crossword c) {
+		val headerNode = NodeModelUtils.getNode(c.header)
+		val partsNodes = headerNode.leafNodes
+					.filter[!it.isHidden] // Solo nodos visibles (no espacios/comentarios)
+					.map[text.trim]
+					.filter[!it.empty] // Por seguridad
+					.toList
+		'''
+		Definition
+		«FOR part: partsNodes»
+			«IF part == "id"»
+				number «c.header.id.ident»
+			«ENDIF»
+			«IF part == "entitled"»
+				entitled «c.header.ent.company»
+			«ENDIF»
+			«IF part == "has"»
+				for the «c.header.has.numAcross»x«c.header.has.numDown» crossword
+			«ENDIF»
+		«ENDFOR»
+		'''.toString.replaceAll("\\s+", " ").trim	
+	}
+	
+	/*
+	 * Primer fichero: listaDef.txt: lista con las definiciones 
+	 */
+	
+	def CharSequence listDefinitions(Crossword c) {
+		val body = new StringBuilder
+		val node = NodeModelUtils.getNode(c)
+	
+		val leafs = node.leafNodes
+						.filter[!isHidden]
+						.map[text.trim]
+						.filter[!empty]
+						.toList
+	
+		for (text : leafs) {
+			switch text {
+				case "across": body.append(c.parteAcrossDef)
+				case "down": body.append(c.parteDownDef)
+			}
+		}
+	'''
+		«c.generarHeader».
+		«body.toString»
+	'''}
+	
+	def CharSequence parteAcrossDef(Crossword c) '''
 		Across
 		«FOR row: c.across.rows»
 			«row.num». «IF row.head !== null»«IF row.head instanceof Black»«IF (row.head as Black).nextLink !== null»«(row.head as Black).nextLink.element.recursivaDef»«ENDIF»«ENDIF»«IF row.head instanceof Word»«(row.head as Word).def»(«(row.head as Word).word.length»).«IF (row.head as Word).nextLink !== null»«(row.head as Word).nextLink.element.recursivaDef»«ENDIF»«ENDIF»«ENDIF»
 		«ENDFOR»
+	'''
+	
+	def CharSequence parteDownDef(Crossword c) '''
 		Down
 		«FOR column: c.down.columns»
 			«column.num». «IF column.head !== null»«IF column.head instanceof Black»«IF (column.head as Black).nextLink !== null»«(column.head as Black).nextLink.element.recursivaDef»«ENDIF»«ENDIF»«IF column.head instanceof Word»«(column.head as Word).def»(«(column.head as Word).word.length»).«IF (column.head as Word).nextLink !== null»«(column.head as Word).nextLink.element.recursivaDef»«ENDIF»«ENDIF»«ENDIF»
@@ -42,40 +94,93 @@ class MyDslGenerator extends AbstractGenerator {
 		«IF e !== null»«IF e instanceof Black»«IF (e as Black).nextLink !== null»«(e as Black).nextLink.element.recursivaDef»«ENDIF»«ENDIF»«IF e instanceof Word»«(e as Word).def»(«(e as Word).word.length»).«IF (e as Word).nextLink !== null»«(e as Word).nextLink.element.recursivaDef»«ENDIF»«ENDIF»«ENDIF»
 	'''
 	
-	def CharSequence crosswordEmpty(Crossword c) '''
-		Definitions for the «c.header.has.numAcross»x«c.header.has.numDown» crossword number «c.header.id.ident» entitled «c.header.ent.company».
+	
+	/*
+	 * Segundo fichero: crucigramaVacio.txt: crucigrama solo con blank 
+	 */
+	def CharSequence crosswordEmpty(Crossword c) {
+		val body = new StringBuilder
+		val node = NodeModelUtils.getNode(c)
+	
+		val leafs = node.leafNodes
+						.filter[!isHidden]
+						.map[text.trim]
+						.filter[!empty]
+						.toList
+	
+		for (text : leafs) {
+			switch text {
+				case "across": body.append(c.parteAcrossVacio)
+				case "down": body.append(c.parteDownVacio)
+			}
+		}
+	'''
+		«c.generarHeader».
+		«body.toString»
+		
+	'''
+	}
+	
+	def CharSequence parteAcrossVacio (Crossword c) '''
 		Across
 		«FOR row: c.across.rows»
-			«row.num». «IF row.head == null»#.«ENDIF»«IF row.head instanceof Black»«IF ((row.head as Black).numtimes == 0)»#.«ENDIF»«IF (row.head as Black).numtimes > 0»«FOR i : new IntegerRange((row.head as Black).numtimes-1, 0, -1)»#«ENDFOR».«ENDIF»«IF (row.head as Black).nextLink !== null»«(row.head as Black).nextLink.element.recursivaVacio»«ENDIF»«ENDIF»«IF row.head instanceof Word»«IF (row.head as Word).nextLink !== null»«(row.head as Word).nextLink.element.recursivaVacio»«ENDIF»«ENDIF»
+			«row.num». «IF row.head === null»#.«ENDIF»«IF row.head instanceof Black»«IF ((row.head as Black).numtimes == 0)»#.«ENDIF»«IF (row.head as Black).numtimes > 0»«FOR i : new IntegerRange((row.head as Black).numtimes-1, 0, -1)»#«ENDFOR».«ENDIF»«IF (row.head as Black).nextLink !== null»«(row.head as Black).nextLink.element.recursivaVacio»«ENDIF»«ENDIF»«IF row.head instanceof Word»«IF (row.head as Word).nextLink !== null»«(row.head as Word).nextLink.element.recursivaVacio»«ENDIF»«ENDIF»
 		«ENDFOR»
+	'''
+	
+	def CharSequence parteDownVacio (Crossword c) '''
 		Down
 		«FOR column: c.down.columns»
-			«column.num». «IF column.head == null»#.«ENDIF»«IF column.head instanceof Black»«IF ((column.head as Black).numtimes == 0)»#.«ENDIF»«IF (column.head as Black).numtimes > 0»«FOR i : new IntegerRange((column.head as Black).numtimes-1, 0, -1)»#«ENDFOR».«ENDIF»«IF (column.head as Black).nextLink !== null»«(column.head as Black).nextLink.element.recursivaVacio»«ENDIF»«ENDIF»«IF column.head instanceof Word»«IF (column.head as Word).nextLink !== null»«(column.head as Word).nextLink.element.recursivaVacio»«ENDIF»«ENDIF»
+			«column.num». «IF column.head === null»#.«ENDIF»«IF column.head instanceof Black»«IF ((column.head as Black).numtimes == 0)»#.«ENDIF»«IF (column.head as Black).numtimes > 0»«FOR i : new IntegerRange((column.head as Black).numtimes-1, 0, -1)»#«ENDFOR».«ENDIF»«IF (column.head as Black).nextLink !== null»«(column.head as Black).nextLink.element.recursivaVacio»«ENDIF»«ENDIF»«IF column.head instanceof Word»«IF (column.head as Word).nextLink !== null»«(column.head as Word).nextLink.element.recursivaVacio»«ENDIF»«ENDIF»
 		«ENDFOR»
-		
 	'''
 	
 	def CharSequence recursivaVacio(Element e) '''
-		«IF e == null»#.«ENDIF»«IF e instanceof Black»«IF ((e as Black).numtimes == 0)»#.«ENDIF»«IF (e as Black).numtimes > 0»«FOR i : new IntegerRange((e as Black).numtimes-1, 0, -1)»#«ENDFOR».«ENDIF»«IF (e as Black).nextLink !== null»«(e as Black).nextLink.element.recursivaVacio»«ENDIF»«ENDIF»«IF e instanceof Word»«IF (e as Word).nextLink !== null»«(e as Word).nextLink.element.recursivaVacio»«ENDIF»«ENDIF»
+		«IF e === null»#.«ENDIF»«IF e instanceof Black»«IF ((e as Black).numtimes == 0)»#.«ENDIF»«IF (e as Black).numtimes > 0»«FOR i : new IntegerRange((e as Black).numtimes-1, 0, -1)»#«ENDFOR».«ENDIF»«IF (e as Black).nextLink !== null»«(e as Black).nextLink.element.recursivaVacio»«ENDIF»«ENDIF»«IF e instanceof Word»«IF (e as Word).nextLink !== null»«(e as Word).nextLink.element.recursivaVacio»«ENDIF»«ENDIF»
 	'''
 	
 
+	/*
+	 * Tercer fichero: crucigramaSol.txt: crucigrama completo 
+	 */
+	def CharSequence crosswordSol(Crossword c) {
+		val body = new StringBuilder
+		val node = NodeModelUtils.getNode(c)
 	
-	def CharSequence crosswordSol(Crossword c) '''
-		Definitions for the «c.header.has.numAcross»x«c.header.has.numDown» crossword number «c.header.id.ident» entitled «c.header.ent.company».
+		val leafs = node.leafNodes
+						.filter[!isHidden]
+						.map[text.trim]
+						.filter[!empty]
+						.toList
+	
+		for (text : leafs) {
+			switch text {
+				case "across": body.append(c.parteAcrossSol)
+				case "down": body.append(c.parteDownSol)
+			}
+		}
+	'''
+		«c.generarHeader».
+		«body.toString»
+	'''
+	}
+	
+	def CharSequence parteAcrossSol(Crossword c) '''
 		Across
 		«FOR row: c.across.rows»
-			«row.num». «IF row.head == null»#.«ENDIF»«IF row.head instanceof Black»«IF ((row.head as Black).numtimes == 0)»#.«ENDIF»«IF (row.head as Black).numtimes > 0»«FOR i : new IntegerRange((row.head as Black).numtimes-1, 0, -1)»#«ENDFOR».«ENDIF»«IF (row.head as Black).nextLink !== null»«(row.head as Black).nextLink.element.recursivaSol»«ENDIF»«ENDIF»«IF row.head instanceof Word»«(row.head as Word).def»(«(row.head as Word).word.length»).«IF (row.head as Word).nextLink !== null»«(row.head as Word).nextLink.element.recursivaSol»«ENDIF»«ENDIF»
+			«row.num». «IF row.head === null»#.«ENDIF»«IF row.head instanceof Black»«IF ((row.head as Black).numtimes == 0)»#.«ENDIF»«IF (row.head as Black).numtimes > 0»«FOR i : new IntegerRange((row.head as Black).numtimes-1, 0, -1)»#«ENDFOR».«ENDIF»«IF (row.head as Black).nextLink !== null»«(row.head as Black).nextLink.element.recursivaSol»«ENDIF»«ENDIF»«IF row.head instanceof Word»«(row.head as Word).def»(«(row.head as Word).word.length»).«IF (row.head as Word).nextLink !== null»«(row.head as Word).nextLink.element.recursivaSol»«ENDIF»«ENDIF»
 		«ENDFOR»
+	'''
+	def CharSequence parteDownSol(Crossword c) '''
 		Down
 		«FOR column: c.down.columns»
-			«column.num». «IF column.head instanceof Black»«IF ((column.head as Black).numtimes == 0)»#.«ENDIF»«IF (column.head as Black).numtimes > 1»«FOR i : new IntegerRange((column.head as Black).numtimes, 1, -1)»#«ENDFOR».«ENDIF»«IF (column.head as Black).nextLink !== null»«(column.head as Black).nextLink.element.recursivaSol»«ENDIF»«ENDIF»«IF column.head instanceof Word»«(column.head as Word).def»(«(column.head as Word).word.length»).«IF (column.head as Word).nextLink !== null»«(column.head as Word).nextLink.element.recursivaSol»«ENDIF»«ENDIF»
+			«column.num». «IF column.head === null»#.«ENDIF»«IF column.head instanceof Black»«IF ((column.head as Black).numtimes == 0)»#.«ENDIF»«IF (column.head as Black).numtimes > 1»«FOR i : new IntegerRange((column.head as Black).numtimes, 1, -1)»#«ENDFOR».«ENDIF»«IF (column.head as Black).nextLink !== null»«(column.head as Black).nextLink.element.recursivaSol»«ENDIF»«ENDIF»«IF column.head instanceof Word»«(column.head as Word).def»(«(column.head as Word).word.length»).«IF (column.head as Word).nextLink !== null»«(column.head as Word).nextLink.element.recursivaSol»«ENDIF»«ENDIF»
 		«ENDFOR»
-		
 	'''
 	
+	
 	def CharSequence recursivaSol(Element e) '''
-		«IF e == null»#.«ENDIF»«IF e instanceof Black»«IF ((e as Black).numtimes == 0)»#.«ENDIF»«IF (e as Black).numtimes > 1»«FOR i : new IntegerRange((e as Black).numtimes, 1, -1)»#«ENDFOR».«ENDIF»«IF (e as Black).nextLink !== null»«(e as Black).nextLink.element.recursivaSol»«ENDIF»	«ENDIF»«IF e instanceof Word»«(e as Word).def»(«(e as Word).word.length»).«IF (e as Word).nextLink !== null»«(e as Word).nextLink.element.recursivaSol»«ENDIF»«ENDIF»
+		«IF e === null»#.«ENDIF»«IF e instanceof Black»«IF ((e as Black).numtimes == 0)»#.«ENDIF»«IF (e as Black).numtimes > 1»«FOR i : new IntegerRange((e as Black).numtimes, 1, -1)»#«ENDFOR».«ENDIF»«IF (e as Black).nextLink !== null»«(e as Black).nextLink.element.recursivaSol»«ENDIF»	«ENDIF»«IF e instanceof Word»«(e as Word).def»(«(e as Word).word.length»).«IF (e as Word).nextLink !== null»«(e as Word).nextLink.element.recursivaSol»«ENDIF»«ENDIF»
 	'''
 	
 }
