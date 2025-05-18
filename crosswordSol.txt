@@ -1,5 +1,26 @@
-def CharSequence crosswordSol(Crossword c) '''
-	Definitions for the «c.header.has.numAcross»x«c.header.has.numDown» crossword number «c.header.id.ident» entitled «c.header.ent.company».
+def CharSequence crosswordSol(Crossword c) {
+	val body = new StringBuilder
+	val node = NodeModelUtils.getNode(c)
+
+	val leafs = node.leafNodes
+					.filter[!isHidden]
+					.map[text.trim]
+					.filter[!empty]
+					.toList
+
+	for (text : leafs) {
+		switch text {
+			case "across": body.append(c.parteAcrossSol)
+			case "down": body.append(c.parteDownSol)
+		}
+	}
+'''
+	«c.generarHeader».
+	«body.toString»
+'''
+}
+
+def CharSequence parteAcrossSol(Crossword c) '''
 	Across
 	«FOR row: c.across.rows»
 		«row.num». 
@@ -28,6 +49,9 @@ def CharSequence crosswordSol(Crossword c) '''
 				«ENDIF»	
 			«ENDIF»
 	«ENDFOR»
+'''
+
+def CharSequence parteDownSol(Crossword c) '''
 	Down
 	«FOR column: c.down.columns»
 		«column.num». 

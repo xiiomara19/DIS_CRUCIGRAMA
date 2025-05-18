@@ -1,52 +1,56 @@
-	def CharSequence listDefinitions(Crossword c) {
-		val body = new StringBuilder
-		val node = NodeModelUtils.getNode(c)
-	
-		val leafs = node.leafNodes
-						.filter[!isHidden]
-						.map[text.trim]
-						.filter[!empty]
-						.toList
-	
-		for (text : leafs) {
-			switch text {
-				case "across": body.append(c.parteAcrossDef)
-				case "down": body.append(c.parteDownDef)
-			}
-		}
-	'''
-		«c.generarHeader».
-		«body.toString»
-	'''}
+def CharSequence crosswordEmpty(Crossword c) {
+	val body = new StringBuilder
+	val node = NodeModelUtils.getNode(c)
 
-def CharSequence crosswordEmpty(Crossword c) '''
-	Definitions for the «c.header.has.numAcross»x«c.header.has.numDown» crossword number «c.header.id.ident» entitled «c.header.ent.company».
-	Across
-	«FOR row: c.across.rows»
-		«row.num». 
-			«IF row.head == null»
-				#.
-			«ENDIF»
-			«IF row.head instanceof Black»
-					«IF ((row.head as Black).numtimes == 0)»
-						#.
-					«ENDIF»
-					«IF (row.head as Black).numtimes > 0»
-						«FOR i : new IntegerRange((row.head as Black).numtimes-1, 0, -1)»
-							#
-						«ENDFOR»
-						.
-					«ENDIF»
-					«IF (row.head as Black).nextLink !== null»
-						«(row.head as Black).nextLink.element.recursivaVacio»
-					«ENDIF»
-			«ENDIF»
-			«IF row.head instanceof Word»
-				«IF (row.head as Word).nextLink !== null»
-					«(row.head as Word).nextLink.element.recursivaVacio»
+	val leafs = node.leafNodes
+					.filter[!isHidden]
+					.map[text.trim]
+					.filter[!empty]
+					.toList
+
+	for (text : leafs) {
+		switch text {
+			case "across": body.append(c.parteAcrossVacio)
+			case "down": body.append(c.parteDownVacio)
+		}
+	}
+'''
+	«c.generarHeader».
+	«body.toString»
+	
+'''
+}
+	
+def CharSequence parteAcrossVacio(Crossword c) '''
+Across
+«FOR row: c.across.rows»
+	«row.num». 
+		«IF row.head == null»
+			#.
+		«ENDIF»
+		«IF row.head instanceof Black»
+				«IF ((row.head as Black).numtimes == 0)»
+					#.
 				«ENDIF»
+				«IF (row.head as Black).numtimes > 0»
+					«FOR i : new IntegerRange((row.head as Black).numtimes-1, 0, -1)»
+						#
+					«ENDFOR»
+					.
+				«ENDIF»
+				«IF (row.head as Black).nextLink !== null»
+					«(row.head as Black).nextLink.element.recursivaVacio»
+				«ENDIF»
+		«ENDIF»
+		«IF row.head instanceof Word»
+			«IF (row.head as Word).nextLink !== null»
+				«(row.head as Word).nextLink.element.recursivaVacio»
 			«ENDIF»
-	«ENDFOR»
+		«ENDIF»
+«ENDFOR»
+'''
+
+def CharSequence parteDownVacio(Crossword c) '''
 	Down
 	«FOR column: c.down.columns»
 		«column.num». 
@@ -73,7 +77,6 @@ def CharSequence crosswordEmpty(Crossword c) '''
 				«ENDIF»
 			«ENDIF»
 	«ENDFOR»
-	
 '''
 
 
