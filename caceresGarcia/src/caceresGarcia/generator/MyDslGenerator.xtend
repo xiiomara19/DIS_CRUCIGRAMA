@@ -11,7 +11,6 @@ import caceresGarcia.myDsl.Crossword
 import caceresGarcia.myDsl.Black
 import caceresGarcia.myDsl.Word
 import caceresGarcia.myDsl.Element
-import org.eclipse.xtext.nodemodel.util.NodeModelUtils
 
 
 /**
