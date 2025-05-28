@@ -23,15 +23,15 @@ EntitledPart:
 HasPart:
 	'has' numAcross=INT 'horizontals' 'and' numDown=INT 'verticals'
 ;
-	
+
 Across:
 	'across' 
-	rows+=Row* 
+	rows+=Row+
 ;
 	
 Down:
 	'down'
-	columns+=Row*
+	columns+=Row+
 ;
 
 Row:
