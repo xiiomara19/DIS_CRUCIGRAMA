@@ -34,13 +34,6 @@ class MyDslGenerator extends AbstractGenerator {
 	 */
 	
 	def CharSequence listDefinitions(Crossword c) {
-		val node = NodeModelUtils.getNode(c)
-		val leafs = node.leafNodes
-						.filter[!isHidden]
-						.map[text.trim]
-						.filter[!empty]
-						.toList
-	
 	'''
 		Definition for the «c.header.has.numAcross»x«c.header.has.numDown» crossword number «c.header.id.ident» entitled «c.header.ent.company».
 		Across
@@ -68,13 +61,6 @@ class MyDslGenerator extends AbstractGenerator {
 	 * Segundo fichero: crucigramaVacio.txt: crucigrama solo con blank 
 	 */
 	def CharSequence crosswordEmpty(Crossword c) {
-		val node = NodeModelUtils.getNode(c)
-	
-		val leafs = node.leafNodes
-						.filter[!isHidden]
-						.map[text.trim]
-						.filter[!empty]
-						.toList
 	'''
 		Definition for the «c.header.has.numAcross»x«c.header.has.numDown» crossword number «c.header.id.ident» entitled «c.header.ent.company».
 		Across
@@ -102,14 +88,6 @@ class MyDslGenerator extends AbstractGenerator {
 	 * Tercer fichero: crucigramaSol.txt: crucigrama completo 
 	 */
 	def CharSequence crosswordSol(Crossword c) {
-		val node = NodeModelUtils.getNode(c)
-	
-		val leafs = node.leafNodes
-						.filter[!isHidden]
-						.map[text.trim]
-						.filter[!empty]
-						.toList
-	
 	'''
 		Definition for the «c.header.has.numAcross»x«c.header.has.numDown» crossword number «c.header.id.ident» entitled «c.header.ent.company».
 		Across
